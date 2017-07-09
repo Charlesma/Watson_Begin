@@ -1,4 +1,3 @@
-#-*- coding:utf-8 -*-
 #!/usr/bin/env python
 import csv
 import subprocess
@@ -32,8 +31,8 @@ def usage():
 try:
     opts, args = getopt.getopt(sys.argv[1:],"hdvu:i:c:x:n:r:",["user=","inputfile=","cluster=","collection=","name=","rows="])
 except getopt.GetoptError as err:
-    print (str(err))
-    print (usage())
+    print str(err)
+    print usage()
     sys.exit(2)
 for opt, arg in opts:
     if opt == '-h':
@@ -72,7 +71,7 @@ BASEURL="https://gateway.watsonplatform.net/retrieve-and-rank/api/v1/"
 SOLRURL= BASEURL+"solr_clusters/%s/solr/%s/fcselect" % (CLUSTER, COLLECTION)
 RANKERURL=BASEURL+"rankers"
 
-with open(RELEVANCE_FILE, 'r') as csvfile:
+with open(RELEVANCE_FILE, 'rb') as csvfile:
     add_header = 'true'
     question_relevance = csv.reader(csvfile)
     with open(TRAININGDATA, "a") as training_file:
@@ -80,12 +79,11 @@ with open(RELEVANCE_FILE, 'r') as csvfile:
         for row in question_relevance:
             question = row[0]
             relevance = ','.join(row[1:])
-            #curl_cmd = 'curl -k -s %s -u %s -d "q=%s&gt=%s&generateHeader=%s&rows=%s&returnRSInput=true&wt=json" "%s"' % (VERBOSE, CREDS, urllib.quote(question), relevance, add_header, ROWS, SOLRURL)
+            print(question)
             curl_cmd = "%s?q=%s&gt=%s&generateHeader=false&rows=50&returnRSInput=true&wt=json&fl=id" % (SOLRURL, urllib.quote(question), relevance.replace(" ", ""))
             if DEBUG:
                 print (curl_cmd)
             
-            get_url = "%s?q=%s&gt=%s&generateHeader=false&rows=50&returnRSInput=true&wt=json&fl=id" % (SOLRURL, urllib.quote(question), relevance.replace(" ", ""))
             output = requests.get(curl_cmd, auth=(CREDS.split(':')[0], CREDS.split(':')[1]))
             print(output.status_code)
 
@@ -93,7 +91,6 @@ with open(RELEVANCE_FILE, 'r') as csvfile:
                 print (output)
             try:
                 print(output)
-                #parsed_json = json.loads(output)
                 parsed_json = output.json()
                 training_file.write(parsed_json['RSInput'])
             except:
