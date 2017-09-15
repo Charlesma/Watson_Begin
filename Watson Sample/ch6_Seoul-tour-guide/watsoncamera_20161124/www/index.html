@@ -1,0 +1,128 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="Content-Security-Policy" content="default-src * data:; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+  <script src="components/loader.js"></script>
+  <script src="lib/onsenui/js/onsenui.min.js"></script>
+
+  <link rel="stylesheet" href="components/loader.css">
+  <link rel="stylesheet" href="lib/onsenui/css/onsenui.css">
+  <link rel="stylesheet" href="lib/onsenui/css/onsen-css-components.css">
+  <link rel="stylesheet" href="css/style.css">
+
+  <script>
+  ons.ready(function() {
+    var cameraButton = document.getElementById('camera-button');
+    var faceDetectButton = document.getElementById('face-detect-button');
+    var photoFileUri = null;
+    
+    // Camera 버튼 탭
+    cameraButton.onclick = function() {
+      // Cordova 카메라 플러그인 시작
+      navigator.camera.getPicture(function(fileUri) {
+        // 이미지가 가능한 경우
+        var photoImg = document.getElementById('photo-img');
+        photoFileUri = fileUri;
+        photoImg.src = photoFileUri;
+        faceDetectButton.removeAttribute('disabled');
+      }, function(message) {
+        // 이미지가 가능하지 않은 경우
+        alert(message);
+      }, {
+        quality: 50,
+        targetWidth: 240,
+        targetHeight: 320,
+        // sourceType을 아래에서 선택
+        // CAMERA：카메라를 시작하고 촬영
+        // PHOTOLIBRARY：사진 라이브러리에서 선택
+        sourceType: Camera.PictureSourceType.CAMERA,
+        destinationType: Camera.DestinationType.FILE_URI
+      });
+    };
+    
+    var apiKey = '＜Visual Recognition의 api_key＞';
+    
+    // Face Detect 버튼 탭
+    faceDetectButton.onclick = function() {
+      //화면 전환
+      navigator1.pushPage('page2.html');
+      //이미지 파일 업로드 (얼굴 인식 API 호출)
+      var url = 'https://gateway-a.watsonplatform.net/visual-recognition/api/v3/detect_faces?api_key=' + apiKey + '&version=2016-05-20';
+      var options = new FileUploadOptions();
+      options.fileKey = 'images_file';
+      options.fileName = 'uploadfile.jpg';
+      options.mimeType = 'image/jpeg';
+      var fileTransfer = new FileTransfer();
+      fileTransfer.upload(photoFileUri, url, function(r) {
+        //얼굴 인식 API로부터의 응답을 처리
+        var response = JSON.parse(r.response);
+        var image = response.images[0];
+        var text = '';
+        if ('faces' in image) {
+          if (image.faces.length > 0) {
+            //얼굴 인식 결과가 있는 경우
+            var face = image.faces[0];
+            //나이
+            text += 'Age: ';
+            if ('max' in face.age && 'min' in face.age) {
+              //연령의 상한과 하한이 인식 된 경우
+              text += face.age.min + ' - ' + face.age.max + ' (' + face.age.score + ')<br>';
+            } else if ('max' in face.age) {
+              //나이 상한만 인식 된 경우
+              text += face.age.max + ' (' + face.age.score + ')<br>';
+            } else if ('min' in face.age) {
+              //연령의 하한만 인식 된 경우
+              text += face.age.min + ' (' + face.age.score + ')<br>';
+            }
+            //성별
+            text += 'Gender: ' + face.gender.gender + ' (' + face.gender.score + ')';
+          } else {
+            //얼굴 인식에 실패한 경우
+            text += 'not found!';
+          }
+        } else if ('error' in image) {
+          //기타 오류가 발생하는 경우
+          text += image.error.description;
+        }
+        //recognize ... 부분을 수정
+        var message = document.getElementById('message');
+        message.innerHTML = text;
+      }, function(error) {
+          console.log(error);
+          alert(error.code);
+      }, options, true);
+    };
+  });
+</script>
+</head>
+<body>
+  <ons-navigator id="navigator1" page="page1.html"></ons-navigator> <!-- navigator→navigator1로 수정 -->
+
+  <ons-template id="page1.html">
+    <ons-page>
+      <ons-toolbar>
+        <div class="center">Take Photo</div>
+      </ons-toolbar>
+      <div style="text-align: center; padding: 1em;">
+        <ons-button id="camera-button">Camera</ons-button>
+          <img id="photo-img" width="280" style="margin: 1em auto;">
+        <ons-button id="face-detect-button" disabled>Face Detect</ons-button>
+      </div>
+    </ons-page>
+  </ons-template>
+
+  <ons-template id="page2.html">
+    <ons-page>
+      <ons-toolbar>
+        <div class="left"><ons-back-button>Back</ons-back-button></div>
+        <div class="center">Result</div>
+      </ons-toolbar>
+      <div style="text-align: center; padding: 1em;">
+        <div id="message">recognize...</div>
+      </div>
+    </ons-page>
+  </ons-template>
+</body>
+</html>
