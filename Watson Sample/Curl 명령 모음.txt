@@ -1,0 +1,61 @@
+■ 자연어 분류
+
+<리스트 4-1>
+curl -u "{username}":"{password}" -F training_data=@train.csv -F training_metadata="{\"language\":\"en\",\"name\":\"My Classifier\"}" "https://gateway.watsonplatform.net/natural-language-classifier/api/v1/classifiers"
+
+<리스트 4-2>
+curl -u "{username}":"{password}" "https://gateway.watsonplatform.net/natural-language-classifier/api/v1/classifiers/1D41B-nlc-1"
+
+<리스트 4-3>
+curl -G -u "{username}":"{password}" "https://gateway.watsonplatform.net/natural-language-classifier/api/v1/classifiers/1D41B-nlc-1/classify?text=How%20hot%20will%20it%20be%20today%3F"
+
+<리스트 4-4>
+curl -H "Content-Type: application/json" -X POST -u "{username}":"{password}" -d "{\"cluster_size\":\"1\",\"cluster_name\":\"My cluster\"}" "https://gateway.watsonplatform.net/retrieve-and-rank/api/v1/solr_clusters"
+
+
+■ 검색 및 평가
+
+<리스트 4-13>
+curl -X POST -H "Content-Type: application/zip" -u "{username}":"{password}" "https://gateway.watsonplatform.net/retrieve-and-rank/api/v1/solr_clusters/sc1ca23733_faa8_49ce_b3b6_dc3e193264c6/config/example_config" --data-binary @/configs/example_config.zip
+
+<리스트 4-15>
+curl -X POST -u "{username}":"{password}" "https://gateway.watsonplatform.net/retrieve-and-rank/api/v1/solr_clusters/sc1ca23733_faa8_49ce_b3b6_dc3e193264c6/solr/admin/collections" -d "action=CREATE&name=example_collection&collection.configName=example_config&wt=json"
+
+<리스트 4-16>
+curl -X POST -H "Content-Type: application/json" -u "{username}":"{password}" "https://gateway.watsonplatform.net/retrieve-and-rank/api/v1/solr_clusters/sc1ca23733_faa8_49ce_b3b6_dc3e193264c6/solr/example_collection/update" --data-binary @your_docs.json
+
+<리스트 4-17>
+curl -X POST -u "{username}":"{password}" "https://gateway.watsonplatform.net/retrieve-and-rank/api/v1/solr_clusters/sc1ca23733_faa8_49ce_b3b6_dc3e193264c6/solr/example_collection/select?q=what%20is%20the%20basic%20mechanism%20of%20the%20transonic%20aileron%20buzz&wt=json&fl=id,title"
+
+<리스트 4-18>
+python ./train.py -u {username}:{password} -i {query relevance file} –c {solr cluster} –x {solr collection} –r [option_argument {solr rows per query}] –n {ranker name} –d [enable debug output for script] –v [enable verbose output for curl]
+
+<리스트 4-19>
+curl –u "{username}":"{password}" "https://gateway.watsonplatform.net/retrieve-and-rank/api/v1/rankers/B2E325-rank-67"
+
+<리스트 4-20>
+curl -X POST -u "{username}":"{password}" -H "Content-Type: application/json" "https://gateway.watsonplatform.net/retrieve-and-rank/api/v1/solr_clusters/sc1ca23733_faa8_49ce_b3b6_dc3e193264c6/solr/example_collection/fcselect?ranker_id=B2E325-rank-67&q=what%20is%20the%20basic%20mechanism%20of%20the%20transonic%20aileron%20buzz&wt=json&fl=id,title"
+
+
+■ 음성 합성
+
+<리스트 4-24>
+curl -X GET -u "{username}":"{password}" --output hello_world.wav "https://stream.watsonplatform.net/text-to-speech/api/v1/synthesize?accept=audio/wav&text=Hello%20world&voice=en-US_AllisonVoice"
+
+
+<리스트 4-25>
+https://stream.aibril-watson.kr/text-to-speech/api/v1/synthesize?accept=audio/wav&text=%EC%95%88%EB%85%95%ED%95%98%EC%84%B8%EC%9A%94&voice=ko-KR_KoreanVoice
+
+
+■ 이미지 인식
+
+<리스트 4-26>
+curl -X POST -F "apple_positive_examples=@apple.zip" -F "banana_positive_examples=@banana.zip" -F "orange_positive_example=@orange.zip" -F "negative_examples=@vegetables.zip" -F "name=fruit" "https://gateway-a.watsonplatform.net/visual-recognition/api/v3/classifiers?api_key={api-key}&version=2016-05-20"
+
+<리스트 4-27>
+curl -X GET "https:/{/gateway-a.watsonplatform.net/visual-recognition/api/v3/classifiers/{your-classifier}?api_key={api-key}&version=2016-05-20"
+
+<리스트 4-28>
+curl -X POST -F "images_file=@fruitbowl.jpg" -F "parameters=@fruit.json" "https://gateway-a.watsonplatform.net/visual-recognition/api/v3/classify?api_key={api-key}&version=2016-05-20"
+
+
