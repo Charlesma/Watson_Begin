@@ -79,5 +79,5 @@ IBM이 구축한 왓슨(Watson)의 학습데이터와 API를 활용하면 클라
 일서 <처음 만나는 왓슨: API 활용과 실전 프로그래밍> (初めてのWatson: APIの用例と実践プログラミング)
 * https://www.amazon.co.jp/dp/4865940529
 
-![도서 표지](http://img1.daumcdn.net/thumb/R1920x0/?fname=http%3A%2F%2Fcfile21.uf.tistory.com%2Fimage%2F993D8E3359EDEB0C3351F7)
+![도서 표지](https://raw.githubusercontent.com/Charlesma/Watson_Begin/master/watson_ai.png)
 * 다양한 샘플을 추가적으로 제공하여 왓슨을 처음 사용하시는 분들에게 도움을 주고자 합니다.
